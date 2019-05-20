@@ -31,6 +31,7 @@ import           Language.Haskell.LSP.Utility
 import           System.IO
 import           System.FilePath
 import           Text.Parsec
+import qualified Control.Concurrent.Async as Async
 
 -- ---------------------------------------------------------------------
 
@@ -72,7 +73,8 @@ runWithHandles hin hout dp h o captureFp = do
                                 captureFp
 
   cout <- atomically newTChan :: IO (TChan FromServerMessage)
-  _rhpid <- forkIO $ sendServer cout hout timestampCaptureFp
+  -- _rhpid <- forkIO $ sendServer cout hout timestampCaptureFp
+  Async.link =<< Async.async (sendServer cout hout timestampCaptureFp)
 
 
   let sendFunc :: Core.SendFunc
